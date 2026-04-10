@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToDo Electron</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel">
+        <h1>Tasks</h1>
+        <p class="subheading">Create and manage nested tasks with live progress.</p>
+        <form id="task-form">
+          <input type="hidden" id="task-id" />
+          <label>Title</label>
+          <input id="title" required />
+          <label>Description</label>
+          <textarea id="description" rows="3"></textarea>
+          <label>Parent Task (optional)</label>
+          <select id="parent_id">
+            <option value="">None</option>
+          </select>
+          <label>Start Date</label>
+          <input id="start_date" type="date" />
+          <label>End Date</label>
+          <input id="end_date" type="date" />
+          <label>Progress</label>
+          <div class="progress-input-row">
+            <input id="progress-slider" type="range" min="0" max="100" value="0" />
+            <input id="progress-input" type="number" min="0" max="100" value="0" />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Task</button>
+            <button id="reset-form" type="button" class="btn-secondary">Clear</button>
+          </div>
+        </form>
+      </aside>
+      <main class="content">
+        <div class="toolbar">
+          <h2>Task Board</h2>
+          <button id="reload-btn" class="btn-secondary">Refresh</button>
+        </div>
+        <div id="status-message" class="status-message" aria-live="polite"></div>
+        <div id="task-list" class="task-grid"></div>
+      </main>
+    </div>
+    <script src="./renderer.js"></script>
+  </body>
+  </html>

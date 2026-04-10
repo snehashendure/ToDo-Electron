@@ -1,0 +1,22 @@
+---
+description: Mandatory project conventions and architecture guardrails
+alwaysApply: true
+---
+
+# Always Rules (Mandatory)
+
+- Follow existing architecture: route -> service -> repository -> db utility.
+- Keep backend modules focused:
+  - routes: transport concerns only
+  - services: business logic only
+  - repositories: persistence only
+- Keep frontend render and event handling centralized and readable.
+- Respect naming conventions:
+  - JavaScript: camelCase
+  - classes: PascalCase
+  - DB schema: snake_case
+- Add/update tests for any behavior change in APIs, persistence, or task completion logic.
+- Update migrations/seeds for schema-affecting changes.
+- Keep docs current in `README.md` and `CLAUDE.md` when setup/architecture changes.
+- Prefer minimal diffs; avoid large rewrites unless explicitly requested.
+- Preserve backward compatibility for existing API routes unless change is explicitly requested.

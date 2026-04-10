@@ -1,0 +1,24 @@
+---
+description: Auto-applied formatting, linting, and file-specific implementation rules
+globs: "**/*.{js,sql,md,yml,yaml}"
+alwaysApply: false
+---
+
+# Auto Rules (Formatting And Quality)
+
+- For JavaScript changes:
+  - Align with `eslint.config.js`.
+  - Keep code Prettier-compatible (`.prettierrc`).
+  - Use async/await and explicit error handling for IO paths.
+- For SQL changes:
+  - Use snake_case identifiers.
+  - Include FK constraints and cascade behavior when parent-child data requires it.
+  - Ensure migration scripts are idempotent where possible.
+- For tests:
+  - Mirror existing Jest + Supertest style in `backend/tests`.
+  - Prefer deterministic fixtures and isolated temporary DB files.
+- For CI updates:
+  - Keep `.github/workflows/ci.yml` steps ordered: install -> migrate -> seed -> lint -> test -> build.
+- For docs updates:
+  - Reference concrete file paths and commands.
+  - Avoid vague guidance; provide runnable examples.

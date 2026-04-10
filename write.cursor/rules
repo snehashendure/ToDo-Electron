@@ -1,0 +1,69 @@
+# AI Memory Rules For ToDo-Electron
+
+This file defines how future prompts and assistants should interpret, extend, and maintain this codebase.
+
+## Mission
+
+- Keep the app stable, testable, and local-first.
+- Respect existing architecture before introducing new abstractions.
+- Make minimal, modular changes that are easy to review.
+
+## Prompt Interpretation Contract
+
+- Treat user requests as implementation-first unless explicitly asking for planning only.
+- Resolve ambiguity by following existing patterns in `backend/src`, `frontend`, and `shared`.
+- If a requested change conflicts with current architecture, explain tradeoffs and choose the least disruptive option.
+- Prefer incremental edits over broad rewrites.
+
+## Project Structure Contract
+
+- `frontend/`: renderer UI and interaction logic.
+- `electron/`: app bootstrap and process lifecycle.
+- `backend/src/routes`: HTTP routing only.
+- `backend/src/services`: domain/business rules.
+- `backend/src/repositories`: data access and SQL adapters.
+- `backend/src/db`: connection and migration runners.
+- `backend/migrations`: schema evolution.
+- `backend/seeds`: local seed fixtures.
+- `shared/`: cross-layer model helpers and payload contracts.
+
+## Naming And Style
+
+- JavaScript/Node: `camelCase` for variables/functions, `PascalCase` for classes.
+- File names:
+  - UI/renderer helpers: `camelCase.js`
+  - backend modules: descriptive `camelCase.js` (`taskService.js`, `sqliteTaskRepository.js`)
+- SQL/database:
+  - table and column names in `snake_case`
+  - explicit foreign keys and cascading rules when required
+
+## Modularity Rules
+
+- Keep route handlers thin: parse/validate, delegate to service, return response.
+- Keep service layer pure to business rules and orchestration.
+- Keep repository layer focused on DB IO only.
+- Do not place SQL in route files.
+- Do not place UI DOM logic in backend modules.
+
+## Persistence And AI Memory Across Sessions
+
+Use these files as long-term memory artifacts:
+
+- `CLAUDE.md`: architecture, conventions, decision rationale.
+- `.cursor/rules/always.mdc`: mandatory standards applied every session.
+- `.cursor/rules/auto.mdc`: auto-applied file-specific formatting/lint/testing rules.
+- `write.cursor/instruction-budget.md`: bounded instruction playbook.
+- `write.cursor/gold-standard-references.md`: canonical implementation references.
+
+Session memory update policy:
+
+1. When architecture changes, update `CLAUDE.md`.
+2. When standards change, update relevant `.mdc` rules.
+3. When a new canonical pattern is adopted, add it to `gold-standard-references.md`.
+4. Keep instruction budget concise and actionable; prefer edits over growth.
+
+## Change Protocol
+
+- Before coding, inspect the nearest matching feature implementation.
+- After coding, run lint and tests related to touched areas.
+- Keep docs in sync when introducing new endpoints, schema changes, or conventions.
