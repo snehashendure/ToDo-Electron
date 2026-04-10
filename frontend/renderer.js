@@ -5,6 +5,7 @@ const parentSelect = document.getElementById('parent_id');
 const progressSlider = document.getElementById('progress-slider');
 const progressInput = document.getElementById('progress-input');
 const statusMessage = document.getElementById('status-message');
+let taskById = new Map();
 
 function setStatus(message, type = 'error') {
   statusMessage.textContent = message;
@@ -25,7 +26,6 @@ function taskCard(task, isSubtask = false) {
   const card = document.createElement('div');
   card.className = isSubtask ? 'subtask-item' : 'task-card';
   card.innerHTML = taskCardTemplate(task);
-  attachCardEvents(card, task);
   return card;
 }
 
@@ -57,41 +57,6 @@ function taskCardTemplate(task) {
     </div>
     ${subtasksHtml}
   `;
-}
-
-function attachCardEvents(card, task) {
-  card.querySelectorAll('button[data-action]').forEach((btn) => {
-    btn.addEventListener('click', async (event) => {
-      const action = event.target.getAttribute('data-action');
-      if (action === 'complete') {
-        try {
-          await fetchJsonOrThrow(`${apiBase}/api/tasks/${task.id}/complete`, { method: 'POST' });
-          setStatus('Task marked completed.', 'success');
-          await refresh();
-        } catch (error) {
-          setStatus(error.message || 'Could not mark task completed.');
-        }
-      } else if (action === 'edit') {
-        loadToForm(task);
-      } else if (action === 'delete') {
-        const confirmed = window.confirm(`Delete "${task.title}" and all its subtasks?`);
-        if (!confirmed) {
-          return;
-        }
-        try {
-          await fetchJsonOrThrow(`${apiBase}/api/tasks/${task.id}`, { method: 'DELETE' });
-          setStatus('Task deleted.', 'success');
-          await refresh();
-        } catch (error) {
-          setStatus(error.message || 'Could not delete task.');
-        }
-      } else if (action === 'add-subtask') {
-        form.reset();
-        document.getElementById('task-id').value = '';
-        parentSelect.value = String(task.id);
-      }
-    });
-  });
 }
 
 function flattenTasks(tasks, acc = []) {
@@ -131,6 +96,7 @@ async function refresh() {
     tasks.forEach((task) => taskList.appendChild(taskCard(task)));
 
     const all = flattenTasks(tasks);
+    taskById = new Map(all.map((task) => [String(task.id), task]));
     parentSelect.innerHTML = '<option value="">None</option>';
     all.forEach((task) => {
       const option = document.createElement('option');
@@ -143,6 +109,49 @@ async function refresh() {
     setStatus(error.message || 'Unable to load tasks.');
   }
 }
+
+taskList.addEventListener('click', async (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) {
+    return;
+  }
+
+  const action = button.getAttribute('data-action');
+  const id = button.getAttribute('data-id');
+  const task = taskById.get(String(id));
+  if (!task) {
+    setStatus('Task not found in current view.');
+    return;
+  }
+
+  if (action === 'complete') {
+    try {
+      await fetchJsonOrThrow(`${apiBase}/api/tasks/${task.id}/complete`, { method: 'POST' });
+      setStatus('Task marked completed.', 'success');
+      await refresh();
+    } catch (error) {
+      setStatus(error.message || 'Could not mark task completed.');
+    }
+  } else if (action === 'edit') {
+    loadToForm(task);
+  } else if (action === 'delete') {
+    const confirmed = window.confirm(`Delete "${task.title}" and all its subtasks?`);
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await fetchJsonOrThrow(`${apiBase}/api/tasks/${task.id}`, { method: 'DELETE' });
+      setStatus('Task deleted.', 'success');
+      await refresh();
+    } catch (error) {
+      setStatus(error.message || 'Could not delete task.');
+    }
+  } else if (action === 'add-subtask') {
+    form.reset();
+    document.getElementById('task-id').value = '';
+    parentSelect.value = String(task.id);
+  }
+});
 
 async function fetchJsonOrThrow(url, options) {
   const response = await fetch(url, options);
